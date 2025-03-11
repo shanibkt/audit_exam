@@ -237,27 +237,60 @@
         }
 
         function submitExam() {
-            let score = 0;
-            let form = document.getElementById("quizForm");
-            let questionsDivs = document.querySelectorAll(".question");
-            let questions = getRandomQuestions();
-
-            questions.forEach((question, index) => {
-                let selectedOption = form[`q${index}`].value;
-                if (selectedOption === "") return;
-
-                if (parseInt(selectedOption) === question.answer) {
-                    score++;
-                    questionsDivs[index].classList.add("correct");
-                } else {
-                    questionsDivs[index].classList.add("wrong");
-                }
-            });
-
-            document.getElementById("score").innerText = score;
-            document.getElementById("exam").classList.add("hidden");
-            document.getElementById("results").classList.remove("hidden");
+    let score = 0;
+    let form = document.getElementById("quizForm");
+    let questionDivs = document.querySelectorAll(".question");
+    
+    // We need to track which questions are currently displayed in the quiz
+    let currentQuestions = [];
+    
+    // Loop through each question on the screen and store the question text
+    for (let i = 0; i < questionDivs.length; i++) {
+        // Get the question text from the paragraph (removing the "Q1: " prefix)
+        let questionText = questionDivs[i].querySelector("p").textContent;
+        questionText = questionText.substring(questionText.indexOf(":") + 2);
+        
+        // Find this question in allQuestions
+        let matchingQuestion = null;
+        for (let j = 0; j < allQuestions.length; j++) {
+            if (allQuestions[j].q === questionText) {
+                matchingQuestion = allQuestions[j];
+                break;
+            }
         }
+        
+        currentQuestions.push(matchingQuestion);
+    }
+    
+    // Now check the answers for each question
+    for (let i = 0; i < questionDivs.length; i++) {
+        let radios = form.querySelectorAll(`input[name="q${i}"]`);
+        let selected = -1;
+        
+        // Find which option was selected
+        for (let j = 0; j < radios.length; j++) {
+            if (radios[j].checked) {
+                selected = parseInt(radios[j].value);
+                break;
+            }
+        }
+        
+        // If nothing was selected, skip this question
+        if (selected === -1) continue;
+        
+        // Check if the answer is correct
+        if (selected === currentQuestions[i].answer) {
+            score++;
+            questionDivs[i].classList.add("correct");
+        } else {
+            questionDivs[i].classList.add("wrong");
+        }
+    }
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("exam").classList.add("hidden");
+    document.getElementById("results").classList.remove("hidden");
+}
 
         function restartExam() {
             document.getElementById("exam").classList.remove("hidden");
