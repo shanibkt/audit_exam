@@ -26,7 +26,7 @@ function loadSet(setIndex) {
         questionElement.innerHTML = `
             <p>${index + 1}. ${question.question}</p>
             ${question.options.map((option, i) => `
-                <label>
+                <label style="display: block;">
                     <input type="radio" name="q${index}" value="${i}"> ${option}
                 </label>
             `).join('')}
