@@ -1,6 +1,7 @@
 let currentSet = 0; // Tracks current set of questions
 let questions = []; // Will hold all questions from the JSON file
 let correctCount = 0; // Tracks the number of correct answers in the current set
+let currentQuestions = []; // Will hold the current set of shuffled questions
 
 // Load questions from JSON file
 fetch('questions.json')
@@ -18,9 +19,10 @@ function loadSet(setIndex) {
 
     const start = setIndex * 50;
     const end = start + (setIndex === 2 ? 30 : 50);
-    const setQuestions = shuffleArray(questions.slice(start, end));
+    // Store the shuffled questions in a variable accessible by the submit handler
+    currentQuestions = shuffleArray(questions.slice(start, end));
 
-    setQuestions.forEach((question, index) => {
+    currentQuestions.forEach((question, index) => {
         const questionElement = document.createElement('div');
         questionElement.classList.add('question');
         questionElement.innerHTML = `
@@ -42,13 +44,14 @@ document.getElementById('submit-btn').addEventListener('click', () => {
     const questionElements = document.querySelectorAll('.question');
     questionElements.forEach((element, index) => {
         const selectedOption = element.querySelector('input[type="radio"]:checked');
-        const isCorrect = selectedOption && parseInt(selectedOption.value) === questions[currentSet * 50 + index].answer;
+        // Use the currentQuestions array instead of the original questions array
+        const isCorrect = selectedOption && parseInt(selectedOption.value) === currentQuestions[index].answer;
         if (isCorrect) {
             correctCount++; // Increment correct count if the answer is correct
         }
         element.style.border = isCorrect ? '2px solid green' : '2px solid red';
         if (!isCorrect) {
-            const correctOption = element.querySelector(`input[value="${questions[currentSet * 50 + index].answer}"]`).parentElement;
+            const correctOption = element.querySelector(`input[value="${currentQuestions[index].answer}"]`).parentElement;
             correctOption.style.backgroundColor = 'lightgreen';
         }
     });
